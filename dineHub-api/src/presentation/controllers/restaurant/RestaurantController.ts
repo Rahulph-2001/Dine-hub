@@ -55,8 +55,15 @@ export class RestaurantController {
   public listMy = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const userId = req.user!.userId;
-      const restaurants = await this.restaurantRepository.findByCreatedBy(userId);
-      const mapped = restaurants.map((r) => this.restaurantMapper.toResponseDTO(r));
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 6;
+      const search = req.query.search as string;
+
+      const result = await this.restaurantRepository.findByCreatedBy(userId, page, limit, search);
+      const mapped = {
+        data: result.data.map((r) => this.restaurantMapper.toResponseDTO(r)),
+        total: result.total,
+      };
       const response = this.responseBuilder.success(mapped, SUCCESS_MESSAGES.RESTAURANT.FETCHED, 200);
       res.status(response.statusCode).json(response.body);
     } catch (error) {

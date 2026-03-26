@@ -4,7 +4,7 @@ export interface IRestaurantRepository {
   create(restaurant: Restaurant): Promise<Restaurant>;
   findAll(page: number, limit: number, search?: string): Promise<{ data: Restaurant[]; total: number }>;
   findById(id: string): Promise<Restaurant | null>;
-  findByCreatedBy(userId: string): Promise<Restaurant[]>;
+  findByCreatedBy(userId: string, page: number, limit: number, search?: string): Promise<{ data: Restaurant[]; total: number }>;
   update(restaurant: Restaurant): Promise<Restaurant>;
   delete(id: string): Promise<void>;
 }

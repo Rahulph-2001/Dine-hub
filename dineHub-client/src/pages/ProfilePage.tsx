@@ -4,16 +4,17 @@ import {
   Box, Typography, Tabs, Tab, Avatar, Card, CardContent,
   CardMedia, CircularProgress, Button, IconButton, Tooltip, Grid,
   Dialog, DialogTitle, DialogContent, DialogActions, Chip, Divider,
+  TextField, InputAdornment, Pagination,
 } from "@mui/material";
 import {
   Person, Restaurant as RestaurantIcon, Edit, Delete, Add as AddIcon,
-  ArrowForward, Email as EmailIcon, Badge, CalendarMonth, LocationOn,
+  ArrowForward, Email as EmailIcon, Badge, CalendarMonth, LocationOn, Search,
 } from "@mui/icons-material";
 import { useAuth } from "../hooks/useAuth";
 import axiosInstance from "../api/axiosInstance";
 import { API_ENDPOINTS, APP_ROUTES } from "../config/routes";
 import { UI_MESSAGES } from "../config/messages";
-import type { Restaurant, ApiResponse } from "../types";
+import type { Restaurant } from "../types";
 import toast from "react-hot-toast";
 import type { AxiosError } from "axios";
 
@@ -21,33 +22,59 @@ const ProfilePage = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [tab, setTab] = useState(0);
+
+  // Restaurant state
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
+  const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
+
+  // Pagination & Search state
+  const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const limit = 6;
+
+  // Delete state
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
 
+  // Debounce search input
   useEffect(() => {
-    const fetchMyRestaurants = async () => {
-      try {
-        const { data } = await axiosInstance.get<ApiResponse<Restaurant[]>>(API_ENDPOINTS.RESTAURANT.MY);
-        setRestaurants(data.data);
-      } catch (error) {
-        const err = error as AxiosError<{ message: string }>;
-        toast.error(err.response?.data?.message || UI_MESSAGES.ERROR.GENERIC);
-      } finally {
-        setLoading(false);
-      }
-    };
+    const handler = setTimeout(() => {
+      setDebouncedSearch(search);
+      setPage(1);
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [search]);
+
+  // Fetch paginated & searched data
+  const fetchMyRestaurants = async () => {
+    setLoading(true);
+    try {
+      const { data } = await axiosInstance.get(API_ENDPOINTS.RESTAURANT.MY, {
+        params: { page, limit, search: debouncedSearch },
+      });
+      setRestaurants(data.data.data);
+      setTotal(data.data.total);
+    } catch (error) {
+      const err = error as AxiosError<{ message: string }>;
+      toast.error(err.response?.data?.message || UI_MESSAGES.ERROR.GENERIC);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchMyRestaurants();
-  }, []);
+  }, [page, debouncedSearch]);
 
   const handleDelete = async () => {
     if (!deleteId) return;
     setDeleting(true);
     try {
       await axiosInstance.delete(API_ENDPOINTS.RESTAURANT.BY_ID(deleteId));
-      setRestaurants((prev) => prev.filter((r) => r.id !== deleteId));
       toast.success(UI_MESSAGES.RESTAURANT.DELETED);
+      fetchMyRestaurants();
     } catch (error) {
       const err = error as AxiosError<{ message: string }>;
       toast.error(err.response?.data?.message || UI_MESSAGES.ERROR.GENERIC);
@@ -56,6 +83,8 @@ const ProfilePage = () => {
       setDeleteId(null);
     }
   };
+
+  const totalPages = Math.ceil(total / limit);
 
   return (
     <Box>
@@ -143,6 +172,33 @@ const ProfilePage = () => {
 
           {tab === 1 && (
             <Box>
+              {/* Search + Add Header */}
+              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2, flexWrap: "wrap", gap: 2 }}>
+                <Typography variant="h6" fontWeight={600}>
+                  {total} Restaurant{total !== 1 ? "s" : ""}
+                </Typography>
+                <Button variant="contained" size="small" startIcon={<AddIcon />} onClick={() => navigate(APP_ROUTES.RESTAURANT_CREATE)}
+                  sx={{ bgcolor: "primary.main", "&:hover": { bgcolor: "primary.dark" } }}
+                >
+                  Add New
+                </Button>
+              </Box>
+
+              {/* Search Input */}
+              <TextField
+                placeholder="Search your restaurants..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                fullWidth
+                size="small"
+                sx={{ mb: 3 }}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start"><Search sx={{ color: "text.secondary" }} /></InputAdornment>
+                  ),
+                }}
+              />
+
               {loading ? (
                 <Box sx={{ display: "flex", justifyContent: "center", py: 8 }}>
                   <CircularProgress color="primary" />
@@ -152,33 +208,29 @@ const ProfilePage = () => {
                   <Box sx={{ width: 72, height: 72, borderRadius: "50%", bgcolor: "#FFF7ED", mx: "auto", mb: 2, display: "flex", alignItems: "center", justifyContent: "center" }}>
                     <RestaurantIcon sx={{ fontSize: 36, color: "primary.main" }} />
                   </Box>
-                  <Typography variant="h6" fontWeight={700} sx={{ mb: 1 }}>No restaurants yet</Typography>
-                  <Typography color="text.secondary" sx={{ mb: 3, maxWidth: 320, mx: "auto" }}>
-                    Your restaurant list will appear here. Add your first spot or explore what others have shared.
+                  <Typography variant="h6" fontWeight={700} sx={{ mb: 1 }}>
+                    {debouncedSearch ? "No restaurants match your search" : "No restaurants yet"}
                   </Typography>
-                  <Box sx={{ display: "flex", justifyContent: "center", gap: 2, flexWrap: "wrap" }}>
-                    <Button variant="contained" startIcon={<AddIcon />} onClick={() => navigate(APP_ROUTES.RESTAURANT_CREATE)}
-                      sx={{ bgcolor: "primary.main", "&:hover": { bgcolor: "primary.dark" } }}
-                    >
-                      Add restaurant
-                    </Button>
-                    <Button variant="outlined" endIcon={<ArrowForward />} onClick={() => navigate(APP_ROUTES.RESTAURANTS)}
-                      sx={{ borderColor: "primary.main", color: "primary.main" }}
-                    >
-                      Explore restaurants
-                    </Button>
-                  </Box>
+                  <Typography color="text.secondary" sx={{ mb: 3, maxWidth: 320, mx: "auto" }}>
+                    {debouncedSearch ? "Try a different search term." : "Your restaurant list will appear here. Add your first spot or explore what others have shared."}
+                  </Typography>
+                  {!debouncedSearch && (
+                    <Box sx={{ display: "flex", justifyContent: "center", gap: 2, flexWrap: "wrap" }}>
+                      <Button variant="contained" startIcon={<AddIcon />} onClick={() => navigate(APP_ROUTES.RESTAURANT_CREATE)}
+                        sx={{ bgcolor: "primary.main", "&:hover": { bgcolor: "primary.dark" } }}
+                      >
+                        Add restaurant
+                      </Button>
+                      <Button variant="outlined" endIcon={<ArrowForward />} onClick={() => navigate(APP_ROUTES.RESTAURANTS)}
+                        sx={{ borderColor: "primary.main", color: "primary.main" }}
+                      >
+                        Explore restaurants
+                      </Button>
+                    </Box>
+                  )}
                 </Box>
               ) : (
-                <Box>
-                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
-                    <Typography variant="h6" fontWeight={600}>{restaurants.length} Restaurant{restaurants.length > 1 ? "s" : ""}</Typography>
-                    <Button variant="contained" size="small" startIcon={<AddIcon />} onClick={() => navigate(APP_ROUTES.RESTAURANT_CREATE)}
-                      sx={{ bgcolor: "primary.main", "&:hover": { bgcolor: "primary.dark" } }}
-                    >
-                      Add New
-                    </Button>
-                  </Box>
+                <>
                   <Grid container spacing={2}>
                     {restaurants.map((r) => (
                       <Grid size={{ xs: 12, sm: 6 }} key={r.id}>
@@ -221,7 +273,19 @@ const ProfilePage = () => {
                       </Grid>
                     ))}
                   </Grid>
-                </Box>
+
+                  {totalPages > 1 && (
+                    <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
+                      <Pagination
+                        count={totalPages}
+                        page={page}
+                        onChange={(_, value) => setPage(value)}
+                        color="primary"
+                        size="medium"
+                      />
+                    </Box>
+                  )}
+                </>
               )}
             </Box>
           )}

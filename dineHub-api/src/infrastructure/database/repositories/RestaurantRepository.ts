@@ -55,12 +55,33 @@ export class RestaurantRepository extends BaseRepository<Restaurant> implements 
     };
   }
     
-    async findByCreatedBy(userId: string): Promise<Restaurant[]> {
-        const data = await this.prisma.restaurant.findMany({
-            where: { createdBy: userId, isDeleted: false },
-            orderBy: { createdAt: "desc" },
-        });
-        return data.map((item) => this.toDomain(item));
+    async findByCreatedBy(userId: string, page: number, limit: number, search?: string): Promise<{ data: Restaurant[]; total: number }> {
+        const skip = (page - 1) * limit;
+        const whereClause: any = { createdBy: userId, isDeleted: false };
+
+        if (search) {
+            whereClause.OR = [
+                { name: { contains: search, mode: "insensitive" } },
+                { address: { contains: search, mode: "insensitive" } },
+            ];
+        }
+
+        const [data, total] = await Promise.all([
+            this.prisma.restaurant.findMany({
+                where: whereClause,
+                orderBy: { createdAt: "desc" },
+                skip,
+                take: limit,
+            }),
+            this.prisma.restaurant.count({
+                where: whereClause,
+            }),
+        ]);
+
+        return {
+            data: data.map((item) => this.toDomain(item)),
+            total,
+        };
     }
     async findById(id: string): Promise<Restaurant | null> {
         const data = await this.prisma.restaurant.findFirst({
