@@ -11,9 +11,9 @@ import { env } from "../../../config/env";
 
 const COOKIE_OPTIONS = {
   httpOnly: true,
-  secure: true, // Always true for HTTPS production
-  sameSite: "none" as const, // Required for cross-domain cookies
-  maxAge: 7 * 24 * 60 * 60 * 1000,
+  secure: true, 
+  sameSite: "none" as const, 
+  maxAge: env.MAX_AGE,
   path: "/",
 };
 
