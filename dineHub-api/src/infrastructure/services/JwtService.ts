@@ -6,10 +6,11 @@ import { env } from "../../config/env";
 @injectable()
 export class JwtService implements IJwtService {
   public generateToken(payload: JwtPayload): string {
+    const expiresIn = env.JWT_EXPIRES_IN || "7d";
     return jwt.sign(
       { ...payload },
       env.JWT_SECRET,
-      { expiresIn: env.JWT_EXPIRES_IN } as jwt.SignOptions
+      { expiresIn: expiresIn as jwt.SignOptions["expiresIn"] }
     );
   }
 
