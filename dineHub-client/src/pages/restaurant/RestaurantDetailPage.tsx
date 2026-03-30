@@ -6,10 +6,10 @@ import {
 import {
   LocationOn, Phone, Email as EmailIcon, ArrowBack, Edit, Delete,
 } from "@mui/icons-material";
-import axiosInstance from "../../api/axiosInstance";
-import { API_ENDPOINTS, APP_ROUTES } from "../../config/routes";
+import { restaurantService } from "../../api/services/restaurant.service";
+import { APP_ROUTES } from "../../config/routes";
 import { UI_MESSAGES } from "../../config/messages";
-import type { Restaurant, ApiResponse } from "../../types";
+import type { Restaurant } from "../../types";
 import { useAuth } from "../../hooks/useAuth";
 import toast from "react-hot-toast";
 import type { AxiosError } from "axios";
@@ -24,9 +24,7 @@ const RestaurantDetailPage = () => {
   useEffect(() => {
     const fetch = async () => {
       try {
-        const { data } = await axiosInstance.get<ApiResponse<Restaurant>>(
-          API_ENDPOINTS.RESTAURANT.BY_ID(id!)
-        );
+        const data = await restaurantService.getById(id!);
         setRestaurant(data.data);
       } catch (error) {
         const err = error as AxiosError<{ message: string }>;
@@ -42,7 +40,7 @@ const RestaurantDetailPage = () => {
   const handleDelete = async () => {
     if (!window.confirm(UI_MESSAGES.RESTAURANT.DELETE_CONFIRM)) return;
     try {
-      await axiosInstance.delete(API_ENDPOINTS.RESTAURANT.BY_ID(id!));
+      await restaurantService.delete(id!);
       toast.success(UI_MESSAGES.RESTAURANT.DELETED);
       navigate(APP_ROUTES.RESTAURANTS);
     } catch (error) {

@@ -10,16 +10,19 @@ import { IRestaurantMapper } from "../../mappers/interfaces/IRestaurantMapper";
 
 @injectable()
 export class CreateRestaurantUseCase implements ICreateRestaurantUseCase {
+    
     constructor(
         @inject(TYPES.IRestaurantRepository) private readonly _restaurantRepository: IRestaurantRepository,
         @inject(TYPES.IRestaurantMapper) private readonly _restaurantMapper:IRestaurantMapper,
         @inject(TYPES.ICloudinaryService) private readonly _cloudinaryService:ICloudinaryService
     ) {}
+    
     async execute(userId: string, dto: CreateRestaurantDTO, imageFile?: Buffer): Promise<RestaurantResponseDTO> {
         let imageUrl: string | undefined ;
         if(imageFile){
             imageUrl = await this._cloudinaryService.uploadImage(imageFile,"dinehub/restaurants");
         }
+        
         const restaurant = new Restaurant({
             name: dto.name,
             address: dto.address,

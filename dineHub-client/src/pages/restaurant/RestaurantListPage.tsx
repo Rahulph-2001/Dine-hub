@@ -5,8 +5,8 @@ import {
 } from "@mui/material";
 import { Search, Add as AddIcon } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
-import axiosInstance from "../../api/axiosInstance";
-import { API_ENDPOINTS, APP_ROUTES } from "../../config/routes";
+import { restaurantService } from "../../api/services/restaurant.service";
+import { APP_ROUTES } from "../../config/routes";
 import { UI_MESSAGES } from "../../config/messages";
 import type { Restaurant } from "../../types";
 import { useAuth } from "../../hooks/useAuth";
@@ -45,9 +45,7 @@ const RestaurantListPage = () => {
   const fetchRestaurants = async () => {
     setLoading(true);
     try {
-      const { data } = await axiosInstance.get(API_ENDPOINTS.RESTAURANT.BASE, {
-        params: { page, limit, search: debouncedSearch }
-      });
+      const data = await restaurantService.getAll({ page, limit, search: debouncedSearch });
       setRestaurants(data.data.data);
       setTotal(data.data.total);
     } catch (error) {
@@ -66,7 +64,7 @@ const RestaurantListPage = () => {
     if (!deleteId) return;
     setDeleting(true);
     try {
-      await axiosInstance.delete(API_ENDPOINTS.RESTAURANT.BY_ID(deleteId));
+      await restaurantService.delete(deleteId);
       setRestaurants((prev) => prev.filter((r) => r.id !== deleteId));
       fetchRestaurants(); // Refresh to keep pagination count accurate
       toast.success(UI_MESSAGES.RESTAURANT.DELETED);

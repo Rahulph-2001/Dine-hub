@@ -23,16 +23,16 @@ const upload = multer({
 export class RestaurantRoutes {
   public readonly router: Router = Router();
 
-  constructor(@inject(TYPES.RestaurantController) private readonly controller: RestaurantController) {
+  constructor(@inject(TYPES.RestaurantController) private readonly _controller: RestaurantController) {
     this.initializeRoutes();
   }
 
   private initializeRoutes(): void {
-    this.router.get("/", this.controller.list);
-    this.router.get(ROUTE_PATHS.RESTAURANT.MY, authMiddleware, this.controller.listMy);
-    this.router.get(ROUTE_PATHS.RESTAURANT.BY_ID, this.controller.getById);
-    this.router.post("/", authMiddleware, upload.single("image"), validateBody(CreateRestaurantSchema), this.controller.create);
-    this.router.put(ROUTE_PATHS.RESTAURANT.BY_ID, authMiddleware, upload.single("image"), validateBody(UpdateRestaurantSchema), this.controller.update);
-    this.router.delete(ROUTE_PATHS.RESTAURANT.BY_ID, authMiddleware, this.controller.delete);
+    this.router.get("/", this._controller.list);
+    this.router.get(ROUTE_PATHS.RESTAURANT.MY, authMiddleware, this._controller.listMy);
+    this.router.get(ROUTE_PATHS.RESTAURANT.BY_ID, this._controller.getById);
+    this.router.post("/", authMiddleware, upload.single("image"), validateBody(CreateRestaurantSchema), this._controller.create);
+    this.router.put(ROUTE_PATHS.RESTAURANT.BY_ID, authMiddleware, upload.single("image"), validateBody(UpdateRestaurantSchema), this._controller.update);
+    this.router.delete(ROUTE_PATHS.RESTAURANT.BY_ID, authMiddleware, this._controller.delete);
   }
 }

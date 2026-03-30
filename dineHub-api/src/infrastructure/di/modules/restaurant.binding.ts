@@ -10,6 +10,8 @@ import { ICreateRestaurantUseCase } from "../../../application/useCases/restaura
 import { CreateRestaurantUseCase } from "../../../application/useCases/restaurant/CreateRestaurantUseCase";
 import { IListRestaurantUseCase } from "../../../application/useCases/restaurant/interfaces/ILIstRestaurantsUseCase";
 import { ListRestaurantUseCase } from "../../../application/useCases/restaurant/ListRestaurantUseCase";
+import { IListMyRestaurantsUseCase } from "../../../application/useCases/restaurant/interfaces/IListMyRestaurantsUseCase";
+import { ListMyRestaurantsUseCase } from "../../../application/useCases/restaurant/ListMyRestaurantsUseCase";
 import { IGetRestaurantByIdUseCase } from "../../../application/useCases/restaurant/interfaces/IGetRestaurantByIdUseCase";
 import { GetRestaurantByIdUseCase } from "../../../application/useCases/restaurant/GetRestaurantByIdUseCase";
 import { IUpdateRestaurantUseCase } from "../../../application/useCases/restaurant/interfaces/IUpdateRestaurantUseCase";
@@ -25,6 +27,7 @@ export function registerRestaurantBindings(container: Container): void {
   container.bind<IRestaurantMapper>(TYPES.IRestaurantMapper).to(RestaurantMapper).inSingletonScope();
   container.bind<ICreateRestaurantUseCase>(TYPES.ICreateRestaurantUseCase).to(CreateRestaurantUseCase).inSingletonScope();
   container.bind<IListRestaurantUseCase>(TYPES.IListRestaurantsUseCase).to(ListRestaurantUseCase).inSingletonScope();
+  container.bind<IListMyRestaurantsUseCase>(TYPES.IListMyRestaurantsUseCase).to(ListMyRestaurantsUseCase).inSingletonScope();
   container.bind<IGetRestaurantByIdUseCase>(TYPES.IGetRestaurantByIdUseCase).to(GetRestaurantByIdUseCase).inSingletonScope();
   container.bind<IUpdateRestaurantUseCase>(TYPES.IUpdateRestaurantUseCase).to(UpdateRestaurantUseCase).inSingletonScope();
   container.bind<IDeleteRestaurantUseCase>(TYPES.IDeleteRestaurantUseCase).to(DeleteRestaurantUseCase).inSingletonScope();

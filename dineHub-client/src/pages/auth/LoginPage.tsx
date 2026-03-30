@@ -6,10 +6,10 @@ import {
 } from "@mui/material";
 import { Visibility, VisibilityOff, Email, Lock, Login as LoginIcon } from "@mui/icons-material";
 import { useAuth } from "../../hooks/useAuth";
-import axiosInstance from "../../api/axiosInstance";
-import { API_ENDPOINTS, APP_ROUTES } from "../../config/routes";
+import { authService } from "../../api/services/auth.service";
+import { APP_ROUTES } from "../../config/routes";
 import { UI_MESSAGES } from "../../config/messages";
-import type { ApiResponse, AuthResponse, LoginFormData } from "../../types";
+import type { LoginFormData } from "../../types";
 import toast from "react-hot-toast";
 import type { AxiosError } from "axios";
 
@@ -28,10 +28,7 @@ const LoginPage = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const { data } = await axiosInstance.post<ApiResponse<{ user: AuthResponse["user"] }>>(
-        API_ENDPOINTS.AUTH.LOGIN,
-        formData
-      );
+      const data = await authService.login(formData);
       login(data.data.user);
       toast.success(UI_MESSAGES.AUTH.LOGIN_SUCCESS);
       navigate(APP_ROUTES.RESTAURANTS);
@@ -68,14 +65,14 @@ const LoginPage = () => {
           <Box component="form" onSubmit={handleSubmit} sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
             <TextField
               name="email" label="Email" type="email"
-              value={formData.email} onChange={handleChange} required fullWidth
+              value={formData.email} onChange={handleChange} required fullWidth autoComplete="email"
               InputProps={{
                 startAdornment: <InputAdornment position="start"><Email sx={{ color: "text.secondary" }} /></InputAdornment>,
               }}
             />
             <TextField
               name="password" label="Password" type={showPassword ? "text" : "password"}
-              value={formData.password} onChange={handleChange} required fullWidth
+              value={formData.password} onChange={handleChange} required fullWidth autoComplete="current-password"
               InputProps={{
                 startAdornment: <InputAdornment position="start"><Lock sx={{ color: "text.secondary" }} /></InputAdornment>,
                 endAdornment: (

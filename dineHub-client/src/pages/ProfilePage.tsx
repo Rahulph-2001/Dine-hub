@@ -11,8 +11,8 @@ import {
   ArrowForward, Email as EmailIcon, Badge, CalendarMonth, LocationOn, Search,
 } from "@mui/icons-material";
 import { useAuth } from "../hooks/useAuth";
-import axiosInstance from "../api/axiosInstance";
-import { API_ENDPOINTS, APP_ROUTES } from "../config/routes";
+import { restaurantService } from "../api/services/restaurant.service";
+import { APP_ROUTES } from "../config/routes";
 import { UI_MESSAGES } from "../config/messages";
 import type { Restaurant } from "../types";
 import toast from "react-hot-toast";
@@ -51,9 +51,7 @@ const ProfilePage = () => {
   const fetchMyRestaurants = async () => {
     setLoading(true);
     try {
-      const { data } = await axiosInstance.get(API_ENDPOINTS.RESTAURANT.MY, {
-        params: { page, limit, search: debouncedSearch },
-      });
+      const data = await restaurantService.getMy({ page, limit, search: debouncedSearch });
       setRestaurants(data.data.data);
       setTotal(data.data.total);
     } catch (error) {
@@ -72,7 +70,7 @@ const ProfilePage = () => {
     if (!deleteId) return;
     setDeleting(true);
     try {
-      await axiosInstance.delete(API_ENDPOINTS.RESTAURANT.BY_ID(deleteId));
+      await restaurantService.delete(deleteId);
       toast.success(UI_MESSAGES.RESTAURANT.DELETED);
       fetchMyRestaurants();
     } catch (error) {
@@ -274,7 +272,7 @@ const ProfilePage = () => {
                     ))}
                   </Grid>
 
-                  {totalPages > 1 && (
+                  {totalPages > 0 && (
                     <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
                       <Pagination
                         count={totalPages}

@@ -1,8 +1,7 @@
 import { createContext, useState, useEffect } from "react";
 import type { ReactNode } from "react";
-import type { User, ApiResponse } from "../types";
-import axiosInstance from "../api/axiosInstance";
-import { API_ENDPOINTS } from "../config/routes";
+import type { User } from "../types";
+import { authService } from "../api/services/auth.service";
 
 interface AuthContextType {
   user: User | null;
@@ -29,7 +28,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const verifyUser = async () => {
       try {
-        const { data } = await axiosInstance.get<ApiResponse<{ user: User }>>(API_ENDPOINTS.AUTH.ME);
+        const data = await authService.me();
         setUser(data.data.user);
       } catch {
         setUser(null);
@@ -46,7 +45,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const logout = async () => {
     try {
-      await axiosInstance.post(API_ENDPOINTS.AUTH.LOGOUT);
+      await authService.logout();
     } catch {
       // Even if API fails, clear local state
     }

@@ -3,13 +3,13 @@ import { injectable } from "inversify";
 
 @injectable()
 export class Database {
-    private static instance : PrismaClient;
+    private static _instance : PrismaClient;
 
     public get client(): PrismaClient {
-        if(!Database.instance){
-            Database.instance = new PrismaClient()
+        if(!Database._instance){
+            Database._instance = new PrismaClient()
         }
-        return Database.instance
+        return Database._instance
     }
     public async connect(): Promise<void> {
         await this.client.$connect();

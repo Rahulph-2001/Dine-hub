@@ -10,6 +10,8 @@ import { ISignupUseCase } from "../../../application/useCases/auth/interfaces/IS
 import { SignupUseCase } from "../../../application/useCases/auth/SignupUseCase";
 import { ILoginUseCase } from "../../../application/useCases/auth/interfaces/ILoginUseCase";
 import { LoginUseCase } from "../../../application/useCases/auth/LoginUseCase";
+import { IGetCurrentUserUseCase } from "../../../application/useCases/auth/interfaces/IGetCurrentUserUseCase";
+import { GetCurrentUserUseCase } from "../../../application/useCases/auth/GetCurrentUserUseCase";
 import { AuthController } from "../../../presentation/controllers/auth/AuthController"; 
 import { AuthRoutes } from "../../../presentation/routes/auth/AuthRoutes"; 
 
@@ -19,6 +21,7 @@ export function registerAuthBindings(container: Container): void {
   container.bind<IUserMapper>(TYPES.IUserMapper).to(UserMapper).inSingletonScope();
   container.bind<ISignupUseCase>(TYPES.ISignupUseCase).to(SignupUseCase).inSingletonScope();
   container.bind<ILoginUseCase>(TYPES.ILoginUseCase).to(LoginUseCase).inSingletonScope();
+  container.bind<IGetCurrentUserUseCase>(TYPES.IGetCurrentUserUseCase).to(GetCurrentUserUseCase).inSingletonScope();
   container.bind<AuthController>(TYPES.AuthController).to(AuthController).inSingletonScope();
   container.bind<AuthRoutes>(TYPES.AuthRoutes).to(AuthRoutes).inSingletonScope();
 }

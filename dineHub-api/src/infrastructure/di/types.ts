@@ -12,9 +12,11 @@ export const TYPES = {
 
   ISignupUseCase: Symbol.for("ISignupUseCase"),
   ILoginUseCase: Symbol.for("ILoginUseCase"),
+  IGetCurrentUserUseCase: Symbol.for("IGetCurrentUserUseCase"),
 
   ICreateRestaurantUseCase: Symbol.for("ICreateRestaurantUseCase"),
   IListRestaurantsUseCase: Symbol.for("IListRestaurantsUseCase"),
+  IListMyRestaurantsUseCase: Symbol.for("IListMyRestaurantsUseCase"),
   IGetRestaurantByIdUseCase: Symbol.for("IGetRestaurantByIdUseCase"),
   IUpdateRestaurantUseCase: Symbol.for("IUpdateRestaurantUseCase"),
   IDeleteRestaurantUseCase: Symbol.for("IDeleteRestaurantUseCase"),

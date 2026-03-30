@@ -8,10 +8,10 @@ import {
   Restaurant as RestIcon, LocationOn, Phone, Email as EmailIcon,
   Description, ArrowBack, CloudUpload, Save,
 } from "@mui/icons-material";
-import axiosInstance from "../../api/axiosInstance";
-import { API_ENDPOINTS, APP_ROUTES } from "../../config/routes";
+import { restaurantService } from "../../api/services/restaurant.service";
+import { APP_ROUTES } from "../../config/routes";
 import { UI_MESSAGES } from "../../config/messages";
-import type { Restaurant, ApiResponse, RestaurantFormData } from "../../types";
+import type { RestaurantFormData } from "../../types";
 import toast from "react-hot-toast";
 import type { AxiosError } from "axios";
 
@@ -30,9 +30,7 @@ const RestaurantFormPage = () => {
     if (isEditing) {
       const fetchRestaurant = async () => {
         try {
-          const { data } = await axiosInstance.get<ApiResponse<Restaurant>>(
-            API_ENDPOINTS.RESTAURANT.BY_ID(id!)
-          );
+          const data = await restaurantService.getById(id!);
           const r = data.data;
           setFormData({
             name: r.name, address: r.address, phone: r.phone,
@@ -78,14 +76,10 @@ const RestaurantFormPage = () => {
       if (formData.image) payload.append("image", formData.image);
 
       if (isEditing) {
-        await axiosInstance.put(API_ENDPOINTS.RESTAURANT.BY_ID(id!), payload, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
+        await restaurantService.update(id!, payload);
         toast.success(UI_MESSAGES.RESTAURANT.UPDATED);
       } else {
-        await axiosInstance.post(API_ENDPOINTS.RESTAURANT.BASE, payload, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
+        await restaurantService.create(payload);
         toast.success(UI_MESSAGES.RESTAURANT.CREATED);
       }
       navigate(APP_ROUTES.RESTAURANTS);

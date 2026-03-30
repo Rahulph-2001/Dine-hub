@@ -1,9 +1,9 @@
 import { useNavigate } from "react-router-dom";
 import {
-  Card, CardContent, CardMedia, Typography, Box, IconButton, Chip, Tooltip,
+  Card, CardContent, CardMedia, Typography, Box, IconButton, Tooltip,
 } from "@mui/material";
 import {
-  LocationOn, Phone, Email as EmailIcon, Edit, Delete, Star,
+  LocationOn, Edit, Delete, Star,
 } from "@mui/icons-material";
 import type { Restaurant } from "../types";
 import { useAuth } from "../hooks/useAuth";

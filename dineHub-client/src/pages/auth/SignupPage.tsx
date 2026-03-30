@@ -6,10 +6,10 @@ import {
 } from "@mui/material";
 import { Visibility, VisibilityOff, Email, Lock, Person, PersonAdd } from "@mui/icons-material";
 import { useAuth } from "../../hooks/useAuth";
-import axiosInstance from "../../api/axiosInstance";
-import { API_ENDPOINTS, APP_ROUTES } from "../../config/routes";
+import { authService } from "../../api/services/auth.service";
+import { APP_ROUTES } from "../../config/routes";
 import { UI_MESSAGES } from "../../config/messages";
-import type { ApiResponse, AuthResponse, SignupFormData } from "../../types";
+import type { SignupFormData } from "../../types";
 import toast from "react-hot-toast";
 import type { AxiosError } from "axios";
 
@@ -28,10 +28,7 @@ const SignupPage = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const { data } = await axiosInstance.post<ApiResponse<{ user: AuthResponse["user"] }>>(
-        API_ENDPOINTS.AUTH.SIGNUP,
-        formData
-      );
+      const data = await authService.signup(formData);
       login(data.data.user);
       toast.success(UI_MESSAGES.AUTH.SIGNUP_SUCCESS);
       navigate(APP_ROUTES.RESTAURANTS);
@@ -73,14 +70,14 @@ const SignupPage = () => {
               }}
             />
             <TextField
-              name="email" label="Email" type="email" value={formData.email} onChange={handleChange} required fullWidth
+              name="email" label="Email" type="email" value={formData.email} onChange={handleChange} required fullWidth autoComplete="email"
               InputProps={{
                 startAdornment: <InputAdornment position="start"><Email sx={{ color: "text.secondary" }} /></InputAdornment>,
               }}
             />
             <TextField
               name="password" label="Password" type={showPassword ? "text" : "password"}
-              value={formData.password} onChange={handleChange} required fullWidth helperText="Minimum 6 characters"
+              value={formData.password} onChange={handleChange} required fullWidth helperText="Minimum 6 characters" autoComplete="new-password"
               InputProps={{
                 startAdornment: <InputAdornment position="start"><Lock sx={{ color: "text.secondary" }} /></InputAdornment>,
                 endAdornment: (

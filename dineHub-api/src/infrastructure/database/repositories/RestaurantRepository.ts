@@ -115,6 +115,7 @@ export class RestaurantRepository extends BaseRepository<Restaurant> implements 
         data: { isDeleted: true}
        })
     }
+    
 
     protected toDomain(data: PrismaRestaurant): Restaurant {
         return new Restaurant({

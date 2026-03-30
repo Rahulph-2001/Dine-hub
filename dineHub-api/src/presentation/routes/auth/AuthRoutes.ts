@@ -12,14 +12,14 @@ import { ROUTE_PATHS } from "../../../config/routeConstants";
 export class AuthRoutes {
   public readonly router: Router = Router();
 
-  constructor(@inject(TYPES.AuthController) private readonly controller: AuthController) {
+  constructor(@inject(TYPES.AuthController) private readonly _controller: AuthController) {
     this.initializeRoutes();
   }
 
   private initializeRoutes(): void {
-    this.router.post(ROUTE_PATHS.AUTH.SIGNUP, validateBody(SignupSchema), this.controller.signup);
-    this.router.post(ROUTE_PATHS.AUTH.LOGIN, validateBody(LoginSchema), this.controller.login);
-    this.router.get(ROUTE_PATHS.AUTH.ME, authMiddleware, this.controller.me);
-    this.router.post(ROUTE_PATHS.AUTH.LOGOUT, this.controller.logout);
+    this.router.post(ROUTE_PATHS.AUTH.SIGNUP, validateBody(SignupSchema), this._controller.signup);
+    this.router.post(ROUTE_PATHS.AUTH.LOGIN, validateBody(LoginSchema), this._controller.login);
+    this.router.get(ROUTE_PATHS.AUTH.ME, authMiddleware, this._controller.me);
+    this.router.post(ROUTE_PATHS.AUTH.LOGOUT, this._controller.logout);
   }
 }
