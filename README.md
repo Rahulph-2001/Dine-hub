@@ -18,11 +18,11 @@
 
 ---
 
-## 📖 Overview
+##  Overview
 
 **DineHub** is an industrial-level restaurant discovery platform. It allows users to seamlessly browse, search, and manage a curated list of restaurant locations. The application incorporates robust authentication, image handling, role-based access control, and follows best practices for scalable architecture via **Dependency Injection** and **Domain-Driven Design**.
 
-## ✨ Core Features
+##  Core Features
 
 - **Robust Authentication:** Secure JWT-based authentication stored in `httpOnly` cookies to mitigate XSS attacks.
 - **Role-Based Access Control (RBAC):** 
@@ -35,7 +35,7 @@
 
 ---
 
-## 🛠️ Technology Stack
+##  Technology Stack
 
 ### **Frontend (`dineHub-client`)**
 * **Framework:** React 18 + Vite
@@ -58,7 +58,7 @@
 
 ---
 
-## 📂 Project Structure
+##  Project Structure
 
 This repository is split into two primary workspaces:
 
@@ -86,7 +86,7 @@ DineHub/
 
 ---
 
-## 🚀 Getting Started
+##  Getting Started
 
 ### Prerequisites
 Before you begin, ensure you have the following installed:
@@ -152,7 +152,7 @@ npm run dev
 
 ---
 
-## 📡 Key API Endpoints
+##  Key API Endpoints
 
 ### **Authentication** (`/api/auth`)
 * `POST /signup` - Register a new user
@@ -170,12 +170,12 @@ npm run dev
 
 ---
 
-## 🤝 Contribution Guidelines
+##  Contribution Guidelines
 1. Fork the project.
 2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`).
 3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`).
 4. Push to the Branch (`git push origin feature/AmazingFeature`).
 5. Open a Pull Request.
 
-## 📄 License
+##  License
 Designed and Built in 2026 for demonstration and educational purposes. All rights reserved.

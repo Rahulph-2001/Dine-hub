@@ -30,7 +30,7 @@ const RestaurantListPage = () => {
 
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
-
+  const [ list,setList] = useState(false)
   // Debounce search input
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -55,6 +55,11 @@ const RestaurantListPage = () => {
       setLoading(false);
     }
   };
+
+  function handleList(){
+     setList((prev)=>!prev)
+  }
+
 
   useEffect(() => {
     fetchRestaurants();
@@ -92,6 +97,7 @@ const RestaurantListPage = () => {
           <Typography color="text.secondary" sx={{ mt: 0.5 }}>
             {total} restaurants available
           </Typography>
+          <button onClick={()=>handleList()}>List</button>
         </Box>
         {isAuthenticated && (
           <Button
@@ -105,6 +111,8 @@ const RestaurantListPage = () => {
           >
             Add Restaurant
           </Button>
+
+          
         )}
       </Box>
 
@@ -134,11 +142,16 @@ const RestaurantListPage = () => {
       ) : (
         <>
           <Grid container spacing={3}>
-            {restaurants.map((restaurant) => (
+            {
+              list && (
+                restaurants.map((restaurant) => (
               <Grid size={{ xs: 12, sm: 6, md: 4 }} key={restaurant.id}>
                 <RestaurantCard restaurant={restaurant} onDelete={(id) => setDeleteId(id)} />
               </Grid>
-            ))}
+              )
+            )
+          )
+            }
           </Grid>
           
           {totalPages > 0 && (
