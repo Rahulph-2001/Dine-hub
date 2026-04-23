@@ -97,10 +97,13 @@ const RestaurantListPage = () => {
           <Typography color="text.secondary" sx={{ mt: 0.5 }}>
             {total} restaurants available
           </Typography>
-          <button onClick={()=>handleList()}>List</button>
+          
         </Box>
+        
         {isAuthenticated && (
-          <Button
+          <div>
+            <button onClick={()=>handleList()}>List</button>
+            <Button
             variant="contained"
             startIcon={<AddIcon />}
             onClick={() => navigate(APP_ROUTES.RESTAURANT_CREATE)}
@@ -111,6 +114,7 @@ const RestaurantListPage = () => {
           >
             Add Restaurant
           </Button>
+          </div>
 
           
         )}
