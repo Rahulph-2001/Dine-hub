@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+  import { useNavigate } from "react-router-dom";
 import { Box, Typography, Button, Container, Grid } from "@mui/material";
 import { Search, Star, Settings, ArrowForward } from "@mui/icons-material";
 import { APP_ROUTES } from "../config/routes";

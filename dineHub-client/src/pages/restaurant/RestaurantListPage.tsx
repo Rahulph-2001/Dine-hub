@@ -30,7 +30,7 @@ const RestaurantListPage = () => {
 
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
-  const [ list,setList] = useState(false)
+  const [ list,setList] = useState(true)
   // Debounce search input
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -56,9 +56,7 @@ const RestaurantListPage = () => {
     }
   };
 
-  function handleList(){
-     setList((prev)=>!prev)
-  }
+ 
 
 
   useEffect(() => {
@@ -102,7 +100,6 @@ const RestaurantListPage = () => {
         
         {isAuthenticated && (
           <div>
-            <button onClick={()=>handleList()}>List</button>
             <Button
             variant="contained"
             startIcon={<AddIcon />}
