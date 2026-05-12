@@ -13,7 +13,7 @@ import { APP_ROUTES } from "../../config/routes";
 import { UI_MESSAGES } from "../../config/messages";
 import type { RestaurantFormData } from "../../types";
 import toast from "react-hot-toast";
-import type { AxiosError } from "axios";
+import axios from "axios";
 
 const RestaurantFormPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -37,9 +37,12 @@ const RestaurantFormPage = () => {
             email: r.email || "", description: r.description || "", image: null,
           });
           if (r.imageUrl) setImagePreview(r.imageUrl);
-        } catch (error) {
-          const err = error as AxiosError<{ message: string }>;
-          toast.error(err.response?.data?.message || UI_MESSAGES.ERROR.GENERIC);
+        } catch (error: unknown) {
+          if (axios.isAxiosError(error)) {
+            toast.error(error.response?.data?.message || UI_MESSAGES.ERROR.GENERIC);
+          } else {
+            toast.error(UI_MESSAGES.ERROR.GENERIC);
+          }
           navigate(APP_ROUTES.RESTAURANTS);
         } finally {
           setFetching(false);
@@ -83,9 +86,12 @@ const RestaurantFormPage = () => {
         toast.success(UI_MESSAGES.RESTAURANT.CREATED);
       }
       navigate(APP_ROUTES.RESTAURANTS);
-    } catch (error) {
-      const err = error as AxiosError<{ message: string }>;
-      toast.error(err.response?.data?.message || UI_MESSAGES.ERROR.GENERIC);
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        toast.error(error.response?.data?.message || UI_MESSAGES.ERROR.GENERIC);
+      } else {
+        toast.error(UI_MESSAGES.ERROR.GENERIC);
+      }
     } finally {
       setLoading(false);
     }

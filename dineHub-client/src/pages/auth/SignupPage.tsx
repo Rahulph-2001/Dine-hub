@@ -11,30 +11,84 @@ import { APP_ROUTES } from "../../config/routes";
 import { UI_MESSAGES } from "../../config/messages";
 import type { SignupFormData } from "../../types";
 import toast from "react-hot-toast";
-import type { AxiosError } from "axios";
+import axios from "axios";
+
+interface FormErrors {
+  name?: string;
+  email?: string;
+  password?: string;
+  confirmPassword?: string;
+}
+
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const SignupPage = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
-  const [formData, setFormData] = useState<SignupFormData>({ name: "", email: "", password: "" });
+
+  const [formData, setFormData] = useState<SignupFormData>({
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [formErrors, setFormErrors] = useState<FormErrors>({});
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    // Clear the error for the field being edited
+    if (formErrors[name as keyof FormErrors]) {
+      setFormErrors((prev) => ({ ...prev, [name]: undefined }));
+    }
+  };
+
+  const validateForm = (): boolean => {
+    const errors: FormErrors = {};
+
+    if (!formData.name.trim() || formData.name.trim().length < 2) {
+      errors.name = "Name must be at least 2 characters";
+    }
+
+    if (!formData.email.trim() || !EMAIL_REGEX.test(formData.email)) {
+      errors.email = "Please enter a valid email address";
+    }
+
+    if (!formData.password || formData.password.length < 6) {
+      errors.password = "Password must be at least 6 characters";
+    }
+
+    if (!formData.confirmPassword) {
+      errors.confirmPassword = "Please confirm your password";
+    } else if (formData.password !== formData.confirmPassword) {
+      errors.confirmPassword = "Passwords do not match";
+    }
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!validateForm()) return;
+
     setLoading(true);
     try {
       const data = await authService.signup(formData);
       login(data.data.user);
       toast.success(UI_MESSAGES.AUTH.SIGNUP_SUCCESS);
       navigate(APP_ROUTES.RESTAURANTS);
-    } catch (error) {
-      const err = error as AxiosError<{ message: string }>;
-      toast.error(err.response?.data?.message || UI_MESSAGES.ERROR.GENERIC);
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        const errorMessage = error.response?.data?.message || UI_MESSAGES.ERROR.GENERIC;
+        toast.error(errorMessage);
+      } else {
+        toast.error(UI_MESSAGES.ERROR.GENERIC);
+      }
     } finally {
       setLoading(false);
     }
@@ -64,20 +118,44 @@ const SignupPage = () => {
 
           <Box component="form" onSubmit={handleSubmit} sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
             <TextField
-              name="name" label="Full Name" value={formData.name} onChange={handleChange} required fullWidth
+              name="name"
+              label="Full Name"
+              value={formData.name}
+              onChange={handleChange}
+              required
+              fullWidth
+              error={!!formErrors.name}
+              helperText={formErrors.name}
               InputProps={{
                 startAdornment: <InputAdornment position="start"><Person sx={{ color: "text.secondary" }} /></InputAdornment>,
               }}
             />
             <TextField
-              name="email" label="Email" type="email" value={formData.email} onChange={handleChange} required fullWidth autoComplete="email"
+              name="email"
+              label="Email"
+              type="email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+              fullWidth
+              autoComplete="email"
+              error={!!formErrors.email}
+              helperText={formErrors.email}
               InputProps={{
                 startAdornment: <InputAdornment position="start"><Email sx={{ color: "text.secondary" }} /></InputAdornment>,
               }}
             />
             <TextField
-              name="password" label="Password" type={showPassword ? "text" : "password"}
-              value={formData.password} onChange={handleChange} required fullWidth helperText="Minimum 6 characters" autoComplete="new-password"
+              name="password"
+              label="Password"
+              type={showPassword ? "text" : "password"}
+              value={formData.password}
+              onChange={handleChange}
+              required
+              fullWidth
+              autoComplete="new-password"
+              error={!!formErrors.password}
+              helperText={formErrors.password || "Minimum 6 characters"}
               InputProps={{
                 startAdornment: <InputAdornment position="start"><Lock sx={{ color: "text.secondary" }} /></InputAdornment>,
                 endAdornment: (
@@ -89,8 +167,34 @@ const SignupPage = () => {
                 ),
               }}
             />
+            <TextField
+              name="confirmPassword"
+              label="Confirm Password"
+              type={showConfirmPassword ? "text" : "password"}
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              required
+              fullWidth
+              autoComplete="new-password"
+              error={!!formErrors.confirmPassword}
+              helperText={formErrors.confirmPassword}
+              InputProps={{
+                startAdornment: <InputAdornment position="start"><Lock sx={{ color: "text.secondary" }} /></InputAdornment>,
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton onClick={() => setShowConfirmPassword(!showConfirmPassword)} edge="end" sx={{ color: "text.secondary" }}>
+                      {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
             <Button
-              type="submit" variant="contained" size="large" fullWidth disabled={loading}
+              type="submit"
+              variant="contained"
+              size="large"
+              fullWidth
+              disabled={loading}
               sx={{
                 mt: 1, py: 1.5, bgcolor: "primary.main", color: "#fff",
                 "&:hover": { bgcolor: "primary.dark" }, fontSize: "1rem",

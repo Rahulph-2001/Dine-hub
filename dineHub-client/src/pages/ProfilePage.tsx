@@ -16,7 +16,7 @@ import { APP_ROUTES } from "../config/routes";
 import { UI_MESSAGES } from "../config/messages";
 import type { Restaurant } from "../types";
 import toast from "react-hot-toast";
-import type { AxiosError } from "axios";
+import axios from "axios";
 
 const ProfilePage = () => {
   const navigate = useNavigate();
@@ -54,9 +54,12 @@ const ProfilePage = () => {
       const data = await restaurantService.getMy({ page, limit, search: debouncedSearch });
       setRestaurants(data.data.data);
       setTotal(data.data.total);
-    } catch (error) {
-      const err = error as AxiosError<{ message: string }>;
-      toast.error(err.response?.data?.message || UI_MESSAGES.ERROR.GENERIC);
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        toast.error(error.response?.data?.message || UI_MESSAGES.ERROR.GENERIC);
+      } else {
+        toast.error(UI_MESSAGES.ERROR.GENERIC);
+      }
     } finally {
       setLoading(false);
     }
@@ -73,9 +76,12 @@ const ProfilePage = () => {
       await restaurantService.delete(deleteId);
       toast.success(UI_MESSAGES.RESTAURANT.DELETED);
       fetchMyRestaurants();
-    } catch (error) {
-      const err = error as AxiosError<{ message: string }>;
-      toast.error(err.response?.data?.message || UI_MESSAGES.ERROR.GENERIC);
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        toast.error(error.response?.data?.message || UI_MESSAGES.ERROR.GENERIC);
+      } else {
+        toast.error(UI_MESSAGES.ERROR.GENERIC);
+      }
     } finally {
       setDeleting(false);
       setDeleteId(null);

@@ -3,6 +3,7 @@ import { container } from "../../infrastructure/di/container";
 import { TYPES } from "../../infrastructure/di/types";
 import { IJwtService, JwtPayload } from "../../domain/services/IJwtService";
 import { ERROR_MESSAGES } from "../../config/messages";
+import { HttpStatus } from "../../shared/http/HttpStatus";
 
 declare global {
   namespace Express {
@@ -17,7 +18,7 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction):
     const token = req.cookies?.token;
 
     if (!token) {
-      res.status(401).json({
+      res.status(HttpStatus.UNAUTHORIZED).json({
         success: false,
         message: ERROR_MESSAGES.AUTH.UNAUTHORIZED,
         error: { code: "UNAUTHORIZED", message: ERROR_MESSAGES.AUTH.UNAUTHORIZED },
@@ -30,9 +31,9 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction):
 
     req.user = decoded;
     next();
-  } catch (error) {
+  } catch (error: unknown) {
     res.clearCookie("token", { path: "/" });
-    res.status(401).json({
+    res.status(HttpStatus.UNAUTHORIZED).json({
       success: false,
       message: ERROR_MESSAGES.AUTH.INVALID_TOKEN,
       error: { code: "UNAUTHORIZED", message: ERROR_MESSAGES.AUTH.INVALID_TOKEN },

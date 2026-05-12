@@ -11,7 +11,7 @@ import { APP_ROUTES } from "../../config/routes";
 import { UI_MESSAGES } from "../../config/messages";
 import type { LoginFormData } from "../../types";
 import toast from "react-hot-toast";
-import type { AxiosError } from "axios";
+import axios from "axios";
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -32,9 +32,13 @@ const LoginPage = () => {
       login(data.data.user);
       toast.success(UI_MESSAGES.AUTH.LOGIN_SUCCESS);
       navigate(APP_ROUTES.RESTAURANTS);
-    } catch (error) {
-      const err = error as AxiosError<{ message: string }>;
-      toast.error(err.response?.data?.message || UI_MESSAGES.ERROR.GENERIC);
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        const errorMessage = error.response?.data?.message || UI_MESSAGES.ERROR.GENERIC;
+        toast.error(errorMessage);
+      } else {
+        toast.error(UI_MESSAGES.ERROR.GENERIC);
+      }
     } finally {
       setLoading(false);
     }

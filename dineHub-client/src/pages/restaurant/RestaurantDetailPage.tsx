@@ -12,7 +12,7 @@ import { UI_MESSAGES } from "../../config/messages";
 import type { Restaurant } from "../../types";
 import { useAuth } from "../../hooks/useAuth";
 import toast from "react-hot-toast";
-import type { AxiosError } from "axios";
+import axios from "axios";
 
 const RestaurantDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -26,9 +26,12 @@ const RestaurantDetailPage = () => {
       try {
         const data = await restaurantService.getById(id!);
         setRestaurant(data.data);
-      } catch (error) {
-        const err = error as AxiosError<{ message: string }>;
-        toast.error(err.response?.data?.message || UI_MESSAGES.ERROR.GENERIC);
+      } catch (error: unknown) {
+        if (axios.isAxiosError(error)) {
+          toast.error(error.response?.data?.message || UI_MESSAGES.ERROR.GENERIC);
+        } else {
+          toast.error(UI_MESSAGES.ERROR.GENERIC);
+        }
         navigate(APP_ROUTES.RESTAURANTS);
       } finally {
         setLoading(false);
@@ -43,9 +46,12 @@ const RestaurantDetailPage = () => {
       await restaurantService.delete(id!);
       toast.success(UI_MESSAGES.RESTAURANT.DELETED);
       navigate(APP_ROUTES.RESTAURANTS);
-    } catch (error) {
-      const err = error as AxiosError<{ message: string }>;
-      toast.error(err.response?.data?.message || UI_MESSAGES.ERROR.GENERIC);
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        toast.error(error.response?.data?.message || UI_MESSAGES.ERROR.GENERIC);
+      } else {
+        toast.error(UI_MESSAGES.ERROR.GENERIC);
+      }
     }
   };
 

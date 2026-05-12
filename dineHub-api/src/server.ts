@@ -37,7 +37,7 @@ const startServer = async (): Promise<void> => {
     app.listen(env.PORT, () => {
       console.log(`DineHub Server running on port ${env.PORT}`);
     });
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Failed to start server:", error);
     process.exit(1);
   }

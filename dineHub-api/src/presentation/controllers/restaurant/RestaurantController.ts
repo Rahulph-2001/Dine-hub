@@ -9,6 +9,7 @@ import { IUpdateRestaurantUseCase } from "../../../application/useCases/restaura
 import { IDeleteRestaurantUseCase } from "../../../application/useCases/restaurant/interfaces/IDeleteRestaurantUseCase";
 import { IResponseBuilder } from "../../../shared/http/IResponseBuilder";
 import { SUCCESS_MESSAGES } from "../../../config/messages";
+import { HttpStatus } from "../../../shared/http/HttpStatus";
 
 @injectable()
 export class RestaurantController {
@@ -25,26 +26,25 @@ export class RestaurantController {
   public create = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const userId = req.user!.userId;
-      const imageFile = req.file?.buffer;
-      const result = await this._createRestaurantUseCase.execute(userId, req.body, imageFile);
-      const response = this._responseBuilder.success(result, SUCCESS_MESSAGES.RESTAURANT.CREATED, 201);
+      const imageFileBuffer = req.file?.buffer;
+      const createdRestaurant = await this._createRestaurantUseCase.execute(userId, req.body, imageFileBuffer);
+      const response = this._responseBuilder.success(createdRestaurant, SUCCESS_MESSAGES.RESTAURANT.CREATED, HttpStatus.CREATED);
       res.status(response.statusCode).json(response.body);
-    } catch (error) {
+    } catch (error: unknown) {
       next(error);
     }
   };
 
-    public list = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  public list = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 9;
-      const search = req.query.search as string;
+      const searchQuery = req.query.search as string;
 
-      const result = await this._listRestaurantsUseCase.execute(page, limit, search);
-      
-      const response = this._responseBuilder.success(result, SUCCESS_MESSAGES.RESTAURANT.FETCHED, 200);
+      const restaurantList = await this._listRestaurantsUseCase.execute(page, limit, searchQuery);
+      const response = this._responseBuilder.success(restaurantList, SUCCESS_MESSAGES.RESTAURANT.FETCHED, HttpStatus.OK);
       res.status(response.statusCode).json(response.body);
-    } catch (error) {
+    } catch (error: unknown) {
       next(error);
     }
   };
@@ -55,22 +55,22 @@ export class RestaurantController {
       const userId = req.user!.userId;
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 6;
-      const search = req.query.search as string;
+      const searchQuery = req.query.search as string;
 
-      const result = await this._listMyRestaurantsUseCase.execute(userId, page, limit, search);
-      const response = this._responseBuilder.success(result, SUCCESS_MESSAGES.RESTAURANT.FETCHED, 200);
+      const myRestaurantList = await this._listMyRestaurantsUseCase.execute(userId, page, limit, searchQuery);
+      const response = this._responseBuilder.success(myRestaurantList, SUCCESS_MESSAGES.RESTAURANT.FETCHED, HttpStatus.OK);
       res.status(response.statusCode).json(response.body);
-    } catch (error) {
+    } catch (error: unknown) {
       next(error);
     }
   };
 
   public getById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const result = await this._getRestaurantByIdUseCase.execute(req.params.id);
-      const response = this._responseBuilder.success(result, SUCCESS_MESSAGES.RESTAURANT.DETAILS_FETCHED, 200);
+      const restaurantDetails = await this._getRestaurantByIdUseCase.execute(req.params.id);
+      const response = this._responseBuilder.success(restaurantDetails, SUCCESS_MESSAGES.RESTAURANT.DETAILS_FETCHED, HttpStatus.OK);
       res.status(response.statusCode).json(response.body);
-    } catch (error) {
+    } catch (error: unknown) {
       next(error);
     }
   };
@@ -78,11 +78,11 @@ export class RestaurantController {
   public update = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { userId, role } = req.user!;
-      const imageFile = req.file?.buffer;
-      const result = await this._updateRestaurantUseCase.execute(req.params.id, req.body, userId, role, imageFile);
-      const response = this._responseBuilder.success(result, SUCCESS_MESSAGES.RESTAURANT.UPDATED, 200);
+      const imageFileBuffer = req.file?.buffer;
+      const updatedRestaurant = await this._updateRestaurantUseCase.execute(req.params.id, req.body, userId, role, imageFileBuffer);
+      const response = this._responseBuilder.success(updatedRestaurant, SUCCESS_MESSAGES.RESTAURANT.UPDATED, HttpStatus.OK);
       res.status(response.statusCode).json(response.body);
-    } catch (error) {
+    } catch (error: unknown) {
       next(error);
     }
   };
@@ -91,9 +91,9 @@ export class RestaurantController {
     try {
       const { userId, role } = req.user!;
       await this._deleteRestaurantUseCase.execute(req.params.id, userId, role);
-      const response = this._responseBuilder.success(null, SUCCESS_MESSAGES.RESTAURANT.DELETED, 200);
+      const response = this._responseBuilder.success(null, SUCCESS_MESSAGES.RESTAURANT.DELETED, HttpStatus.OK);
       res.status(response.statusCode).json(response.body);
-    } catch (error) {
+    } catch (error: unknown) {
       next(error);
     }
   };

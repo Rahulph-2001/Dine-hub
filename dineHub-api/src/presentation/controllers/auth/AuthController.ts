@@ -7,6 +7,7 @@ import { IGetCurrentUserUseCase } from "../../../application/useCases/auth/inter
 import { IResponseBuilder } from "../../../shared/http/IResponseBuilder";
 import { SUCCESS_MESSAGES } from "../../../config/messages";
 import { env } from "../../../config/env";
+import { HttpStatus } from "../../../shared/http/HttpStatus";
 
 const isProd = process.env.NODE_ENV === "production";
 const COOKIE_OPTIONS = {
@@ -28,30 +29,30 @@ export class AuthController {
 
   public signup = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const result = await this._signupUseCase.execute(req.body);
-      res.cookie("token", result.token, COOKIE_OPTIONS);
+      const signupResponse = await this._signupUseCase.execute(req.body);
+      res.cookie("token", signupResponse.token, COOKIE_OPTIONS);
       const response = this._responseBuilder.success(
-        { user: result.user },
+        { user: signupResponse.user },
         SUCCESS_MESSAGES.AUTH.SIGNUP_SUCCESS,
-        201
+        HttpStatus.CREATED
       );
       res.status(response.statusCode).json(response.body);
-    } catch (error) {
+    } catch (error: unknown) {
       next(error);
     }
   };
 
   public login = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const result = await this._loginUseCase.execute(req.body);
-      res.cookie("token", result.token, COOKIE_OPTIONS);
+      const loginResponse = await this._loginUseCase.execute(req.body);
+      res.cookie("token", loginResponse.token, COOKIE_OPTIONS);
       const response = this._responseBuilder.success(
-        { user: result.user },
+        { user: loginResponse.user },
         SUCCESS_MESSAGES.AUTH.LOGIN_SUCCESS,
-        200
+        HttpStatus.OK
       );
       res.status(response.statusCode).json(response.body);
-    } catch (error) {
+    } catch (error: unknown) {
       next(error);
     }
   };
@@ -59,21 +60,21 @@ export class AuthController {
   public me = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const userId = req.user!.userId;
-      const userDTO = await this._getCurrentUserUseCase.execute(userId);
-      if (!userDTO) {
+      const currentUser = await this._getCurrentUserUseCase.execute(userId);
+      if (!currentUser) {
         res.clearCookie("token", { path: "/" });
-        res.status(401).json({ success: false, message: "User not found" });
+        res.status(HttpStatus.UNAUTHORIZED).json({ success: false, message: "User not found" });
         return;
       }
-      const response = this._responseBuilder.success({ user: userDTO }, "User fetched", 200);
+      const response = this._responseBuilder.success({ user: currentUser }, "User fetched", HttpStatus.OK);
       res.status(response.statusCode).json(response.body);
-    } catch (error) {
+    } catch (error: unknown) {
       next(error);
     }
   };
 
   public logout = async (_req: Request, res: Response): Promise<void> => {
     res.clearCookie("token", { path: "/" });
-    res.status(200).json({ success: true, message: "Logged out successfully" });
+    res.status(HttpStatus.OK).json({ success: true, message: "Logged out successfully" });
   };
 }
